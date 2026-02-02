@@ -1,0 +1,19 @@
+body {
+  font-family: Arial;
+  background: #f4f4f4;
+  padding: 40px;
+}
+
+h1 {
+  color: #333;
+}
+
+button {
+  padding: 10px 20px;
+  margin-top: 10px;
+}
+
+#result {
+  margin-top: 20px;
+  font-size: 18px;
+}
