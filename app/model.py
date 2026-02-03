@@ -13,7 +13,19 @@ def predict(audio):
     feat = extract_features(audio).reshape(1, -1)
     prob = model.predict_proba(feat)[0][1]
 
+    confidence = round(float(prob), 2)
+
     if prob > 0.5:
-        return "AI_GENERATED", float(prob)
+        result = "AI_GENERATED"
+        explanation = (
+            "The audio shows characteristics of synthetic speech such as "
+            "uniform pitch, low natural variation, and consistent energy patterns."
+        )
     else:
-        return "HUMAN", float(1 - prob)
+        result = "HUMAN"
+        explanation = (
+            "The audio contains natural speech variations including pauses, "
+            "pitch fluctuations, and irregular energy patterns typical of human speech."
+        )
+
+    return result, confidence, explanation

@@ -25,9 +25,10 @@ def detect_voice(
     _: bool = Depends(verify_api_key)   # x-api-key auth
 ):
     audio = base64_to_audio(req.audio_base64)
-    result, confidence = predict(audio)
+    result, confidence ,explanation= predict(audio)
 
     return {
         "result": result,
-        "confidence": float(confidence)
+        "confidence": float(confidence),
+        "explanation": explanation
     }
