@@ -6,13 +6,36 @@
 </head>
 <body>
 
-<h1>🎙️ AI Generated Voice Detection</h1>
+<div class="container">
 
-<input type="file" id="audioFile" accept=".mp3">
-<button onclick="uploadAudio()">Detect</button>
+  <h1 class="title">
+    🤖 AI Voice Detector
+  </h1>
 
-<div id="result"></div>
+  <p class="subtitle">Detect whether a voice is AI generated or Human</p>
+
+  <div class="card">
+      <input type="file" id="audioFile" accept=".mp3" onchange="showFileName()">
+      <p id="fileName">No file chosen</p>
+
+      <button onclick="uploadAudio()">Analyze Voice</button>
+
+      <div id="loader" class="loader hidden"></div>
+
+      <div id="result"></div>
+  </div>
+
+</div>
 
 <script src="script.js"></script>
+
+<script>
+function showFileName(){
+  const file = document.getElementById("audioFile").files[0];
+  document.getElementById("fileName").innerText =
+      file ? file.name : "No file chosen";
+}
+</script>
+
 </body>
 </html>
