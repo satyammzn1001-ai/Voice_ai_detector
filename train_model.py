@@ -1,50 +1,50 @@
 import os
-import torch
 import librosa
-from transformers import Wav2Vec2Processor, Wav2Vec2Model
+import numpy as np
+import pickle
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
 
-processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base")
-wav2vec = Wav2Vec2Model.from_pretrained("facebook/wav2vec2-base")
+DATA_DIR = "data"
+LANGS = ["english", "hindi", "tamil", "telugu", "malayalam"]
 
-for p in wav2vec.parameters():
-    p.requires_grad = False
+def extract_features(path):
+    y, sr = librosa.load(path, sr=16000)
+    mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=20)
+    return np.mean(mfcc.T, axis=0)
 
-class Classifier(torch.nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.fc = torch.nn.Linear(768, 1)
+X, y = [], []
 
-    def forward(self, x):
-        x = x.mean(dim=1)
-        return torch.sigmoid(self.fc(x))
-
-model = Classifier()
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-loss_fn = torch.nn.BCELoss()
-
-def train_folder(folder, label):
-    for file in os.listdir(folder):
-        path = os.path.join(folder, file)
-        if not path.endswith((".wav", ".mp3", ".flac")):
+for label, cls in enumerate(["human", "ai"]):
+    for lang in LANGS:
+        folder = os.path.join(DATA_DIR, cls, lang)
+        if not os.path.isdir(folder):
             continue
+        for file in os.listdir(folder):
+            if file.endswith((".mp3", ".wav", ".flac")):
+                try:
+                    feat = extract_features(os.path.join(folder, file))
+                    X.append(feat)
+                    y.append(label)
+                except:
+                    pass
 
-        audio, _ = librosa.load(path, sr=16000)
-        inputs = processor(audio, return_tensors="pt", sampling_rate=16000)
+X = np.array(X)
+y = np.array(y)
 
-        with torch.no_grad():
-            feats = wav2vec(**inputs).last_hidden_state
+print("Total samples:", len(X))
 
-        pred = model(feats)
-        loss = loss_fn(pred, torch.tensor([[label]], dtype=torch.float))
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
 
-for _ in range(5):  # epochs
-    for lang in os.listdir("data/human"):
-        train_folder(f"data/human/{lang}", 0)
-        train_folder(f"data/ai/{lang}", 1)
+acc = model.score(X_test, y_test)
+print("Accuracy:", acc)
 
-torch.save(model.state_dict(), "voice_ai_model.pt")
-print("✅ Training complete, model saved")
+with open("model.pkl", "wb") as f:
+    pickle.dump(model, f)
+
+print("✅ Model saved as model.pkl")
