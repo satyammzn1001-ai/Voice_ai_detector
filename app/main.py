@@ -1,9 +1,10 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+import tempfile
+import shutil
+import os
 
 from app.auth import verify_api_key
-from app.audio_utils import base64_to_audio
 from app.model import predict
 
 app = FastAPI()
@@ -11,21 +12,26 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=False,   # 🔴 IMPORTANT
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-class AudioRequest(BaseModel):
-    audio_base64: str
-
 @app.post("/detect-voice")
 def detect_voice(
-    req: AudioRequest,
+    audio: UploadFile = File(...),      # 🔴 MP3 file
     _: bool = Depends(verify_api_key)   # x-api-key auth
 ):
-    audio = base64_to_audio(req.audio_base64)
-    result, confidence ,explanation= predict(audio)
+    # Save uploaded MP3 temporarily
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
+        shutil.copyfileobj(audio.file, tmp)
+        audio_path = tmp.name
+
+    # Predict
+    result, confidence, explanation = predict(audio_path)
+
+    # Cleanup
+    os.remove(audio_path)
 
     return {
         "result": result,

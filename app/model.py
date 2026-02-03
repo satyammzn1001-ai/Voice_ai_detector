@@ -5,12 +5,13 @@ import pickle
 with open("model.pkl", "rb") as f:
     model = pickle.load(f)
 
-def extract_features(y, sr=16000):
+def extract_features(path):
+    y, sr = librosa.load(path, sr=16000, mono=True, duration=5.0)
     mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=20)
     return np.mean(mfcc.T, axis=0)
 
-def predict(audio):
-    feat = extract_features(audio).reshape(1, -1)
+def predict(audio_path):
+    feat = extract_features(audio_path).reshape(1, -1)
     prob = model.predict_proba(feat)[0][1]
 
     confidence = round(float(prob), 2)
