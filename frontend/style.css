@@ -1,19 +1,87 @@
 body {
-  font-family: Arial;
-  background: #f4f4f4;
-  padding: 40px;
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #eef1ff, #f8f9ff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
-h1 {
-  color: #333;
+.container {
+    text-align: center;
+    width: 100%;
+}
+
+.title {
+    font-size: 70px;
+    color: #4b4fc7;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 40px;
+    font-size: 22px;
+}
+
+.card {
+    background: white;
+    padding: 80px;
+    border-radius: 25px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    width: 700px;
+    margin: auto;
+}
+
+input[type="file"] {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+#fileName {
+    font-size: 20px;
+    color: #777;
+    margin-bottom: 30px;
 }
 
 button {
-  padding: 10px 20px;
-  margin-top: 10px;
+    background-color: #6c63ff;
+    color: white;
+    border: none;
+    padding: 20px 60px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 24px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #574fd6;
 }
 
 #result {
-  margin-top: 20px;
-  font-size: 18px;
+    margin-top: 35px;
+    font-size: 26px;
+    color: #333;
+    font-weight: bold;
+}
+
+.loader {
+    margin: 30px auto;
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #6c63ff;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    animation: spin 1s linear infinite;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

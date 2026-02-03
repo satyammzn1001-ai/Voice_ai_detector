@@ -1,6 +1,13 @@
 function uploadAudio() {
+
   const file = document.getElementById("audioFile").files[0];
-  if (!file) return alert("Upload MP3 file");
+  if (!file) {
+    alert("Upload MP3 file");
+    return;
+  }
+
+  document.getElementById("loader").classList.remove("hidden");
+  document.getElementById("result").innerHTML = "";
 
   const reader = new FileReader();
 
@@ -17,11 +24,6 @@ function uploadAudio() {
         body: JSON.stringify({ audio_base64: base64 })
       });
 
-      if (!response.ok) {
-        const err = await response.text();
-        throw new Error(err);
-      }
-
       const data = await response.json();
 
       document.getElementById("result").innerHTML =
@@ -31,6 +33,9 @@ function uploadAudio() {
       console.error(error);
       document.getElementById("result").innerHTML =
         `<span style="color:red">Error: ${error.message}</span>`;
+    } finally {
+      
+      document.getElementById("loader").classList.add("hidden");
     }
   };
 
