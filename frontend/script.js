@@ -8,7 +8,7 @@ function uploadAudio() {
     try {
       const base64 = reader.result.split(",")[1];
 
-      const response = await fetch("http://127.0.0.1:8001/detect-voice", {
+      const response = await fetch("https://voice-ai-detector-j0dx.onrender.com/detect-voice", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
