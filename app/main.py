@@ -1,17 +1,17 @@
 from fastapi import FastAPI, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
 from app.auth import verify_api_key
 from app.audio_utils import base64_to_audio
 from app.model import predict
-security = HTTPBearer()
 
 app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # sab allow (development)
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,   # 🔴 IMPORTANT
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -22,15 +22,12 @@ class AudioRequest(BaseModel):
 @app.post("/detect-voice")
 def detect_voice(
     req: AudioRequest,
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    _: bool = Depends(verify_api_key)   # x-api-key auth
 ):
-    verify_api_key(credentials)
-
     audio = base64_to_audio(req.audio_base64)
     result, confidence = predict(audio)
 
     return {
         "result": result,
-        "confidence": confidence
+        "confidence": float(confidence)
     }
-

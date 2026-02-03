@@ -1,10 +1,13 @@
-from fastapi import HTTPException
-from fastapi.security import HTTPAuthorizationCredentials
+from fastapi import Header, HTTPException
 from app.config import API_KEY
 
-def verify_api_key(credentials: HTTPAuthorizationCredentials):
-    if credentials.scheme.lower() != "bearer":
-        raise HTTPException(status_code=401, detail="Invalid auth scheme")
-
-    if credentials.credentials != API_KEY:
-        raise HTTPException(status_code=401, detail="Invalid API key")
+def verify_api_key(x_api_key: str = Header(...)):
+    """
+    Verify API key sent via `x-api-key` header
+    """
+    if x_api_key != API_KEY:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid API key"
+        )
+    return True
